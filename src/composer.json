@@ -13,6 +13,7 @@
         "doctrine/dbal": "^2.12",
         "facuz/laravel-themes": "^3.2",
         "fideloper/proxy": "^4.0",
+        "fruitcake/laravel-cors": "*",
         "jenssegers/date": "^4.0",
         "kagatan/monolog-telegram": "^1.4",
         "laravel-lang/lang": "~4.0",
@@ -20,7 +21,7 @@
         "laravel/tinker": "^1.0",
         "maatwebsite/excel": "^3.1",
         "maksa988/laravel-wayforpay": "^1.0",
-        "poster/api": "^1.0",
+        "poster/api": "*",
         "typicms/nestablecollection": "^1.1"
     },
     "require-dev": {

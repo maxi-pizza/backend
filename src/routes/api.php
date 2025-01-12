@@ -14,18 +14,24 @@ use Illuminate\Http\Request;
 */
 
 Route::namespace('Api')->group(function () {
-    Route::get('/products/images', 'ProductsController@images');
-    Route::get('/products/{posterId}/images', 'ProductsController@getImage');
-
-    Route::get('/categories/{spotSlug}', 'CategoriesController@index');
-    Route::get('/categories/{spotSlug}/{slug}', 'CategoriesController@show');
-    Route::get('/products/{spotSlug}', 'ProductsController@index');
+    Route::get('/products', 'ProductsController@index');
+    Route::get('/checkout', 'CheckoutController@index');
+    Route::post('/placeOrder', 'PlaceOrderController@index');
 
 
 
-    Route::post('/orders/send', 'OrdersController@send');
-
-    Route::get('/spots/get', 'SpotsController@get');
-    Route::get('/spots/getOne/{slug}', 'SpotsController@getOne');
+//    Route::get('/products/images', 'ProductsController@images');
+//    Route::get('/products/{posterId}/images', 'ProductsController@getImage');
+//
+//    Route::get('/categories/{spotSlug}', 'CategoriesController@index');
+//    Route::get('/categories/{spotSlug}/{slug}', 'CategoriesController@show');
+//    Route::get('/products/{spotSlug}', 'ProductsController@index');
+//
+//
+//
+//    Route::post('/orders/send', 'OrdersController@send');
+//
+//    Route::get('/spots/get', 'SpotsController@get');
+//    Route::get('/spots/getOne/{slug}', 'SpotsController@getOne');
     //Route::get('/categories/showPoster}', 'CategoriesController@showPoster');
 });

@@ -21,7 +21,7 @@ class ProductsTableSeeder extends Seeder
         function delEndind($str){
             if(!empty($str)){
                 $sub_str = substr($str, 0, strlen($str)-2);
-                return $sub_str;
+                return $sub_str || 0;
             }
 
             return 0;
@@ -48,7 +48,7 @@ class ProductsTableSeeder extends Seeder
                     'weight'        => $value['out'],
                     'image'         => $value['photo'] ? $spot->poster_link . $value['photo'] : null,
                     'unit'          => 'г',
-                    'sort_order'    => $value['sort_order']
+                    'sort_order'    => $value['sort_order'],
                 ];
 
 
