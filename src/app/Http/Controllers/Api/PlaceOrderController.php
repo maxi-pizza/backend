@@ -38,7 +38,7 @@ class PlaceOrderController
 
             return [
                 'count' => $cartProduct['count'],
-                'id' => $item->poster_id,
+                'product_id' => $item->poster_id,
             ];
         });
 
@@ -55,6 +55,7 @@ class PlaceOrderController
                 })->join(' || ');
 
             $order = [
+                'spot_id' => '1',
                 'comment' => $comment,
                 'first_name' => $data['firstName'],
                 'last_name' => $data['lastName'],
@@ -70,7 +71,12 @@ class PlaceOrderController
                 $order['service_mode'] = ServiceMode::TAKEAWAY;
             }
 
-            return $order;
+            $posterResult = (object)PosterApi::incomingOrders()->createIncomingOrder($order);
+            if(isset($posterResult->error)) {
+                return $posterResult->error;
+            }else {
+                return 'ok';
+            }
 
         }else {
             return 'error';
