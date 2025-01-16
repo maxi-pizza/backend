@@ -14,6 +14,7 @@
         "facuz/laravel-themes": "^3.2",
         "fideloper/proxy": "^4.0",
         "fruitcake/laravel-cors": "*",
+        "irazasyed/telegram-bot-sdk": "*",
         "jenssegers/date": "^4.0",
         "kagatan/monolog-telegram": "^1.4",
         "laravel-lang/lang": "~4.0",

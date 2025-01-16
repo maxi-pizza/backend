@@ -8,6 +8,7 @@ use App\Libraries\Poster;
 use App\Models\Spot;
 use Illuminate\Support\Facades\DB;
 
+
 class OrdersController extends Controller
 {
     public function send(){
