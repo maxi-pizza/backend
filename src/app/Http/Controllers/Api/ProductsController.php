@@ -16,7 +16,9 @@ class ProductsController extends Controller
     {
 
         $result = [];
-        $categories = DB::table('categories')->get()->where('parent_id', 1);
+        $categories = DB::table('categories')->get()
+            ->where('hidden', false)
+            ->where('parent_id', 1);
         $products = DB::table('products')->get();
         $product_categories = DB::table('product_categories')->get();
         foreach ($categories as $category) {
