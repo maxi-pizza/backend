@@ -12,6 +12,7 @@ composer.phar
 
 ### dotenv ###
 .env
+.env.stage
 
 ### Laravel ###
 node_modules/
