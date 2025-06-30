@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-
+use App\Models\Category;
 use App\Models\Product;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
-use App\Libraries\Poster;
 
 class ProductsController extends Controller
 {
@@ -16,10 +14,17 @@ class ProductsController extends Controller
     {
 
         $result = [];
-        $categories = DB::table('categories')->get()
+        $categories = Category::query()
             ->where('hidden', false)
-            ->where('parent_id', 1);
-        $products = DB::table('products')->get();
+            ->where('parent_id', 1)
+            ->orderBy('sort_order', 'asc')
+            ->get();
+
+        $products = Product::with(['images'])
+            ->where('hidden', false)
+            ->orderBy('sort_order','asc')
+            ->get();
+
         $product_categories = DB::table('product_categories')->get();
         foreach ($categories as $category) {
             $result[] = [
