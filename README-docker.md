@@ -12,7 +12,7 @@ Ports used in the project:
 | Software | Port |
 |-------------- | -------------- |
 | **nginx** | 8080 |
-| **phpmyadmin** | 8081 |
+| **phpmyadmin** | 8082 |
 | **mysql** | 3306 |
 | **php** | 9000 |
 | **xdebug** | 9001 |

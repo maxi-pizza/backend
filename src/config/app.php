@@ -180,6 +180,7 @@ return [
         App\Providers\ThemeServiceProvider::class,
         Maksa988\WayForPay\WayForPayServiceProvider::class,
         Jenssegers\Date\DateServiceProvider::class,
+        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
     ],
 
 

@@ -14,13 +14,16 @@ backend-migrations:
 install-packages:
 	docker compose run --rm composer install
 
+dump-autoload:
+	docker compose run --rm composer dump-autoload
+
 success:
 	@echo "\n$(COLOR_GREEN)Docker Compose Stack successfully started$(COLOR_DEFAULT)\n"
 
 info:
 	@echo "STACK URLs:"
 	@echo " - Backend: \t\t http://localhost:8080"
-	@echo " - PhpMyAdmin: \t\t http://localhost:8081"
+	@echo " - PhpMyAdmin: \t\t http://localhost:8082"
 	@echo " - Ngrok: \t\t http://localhost:4040"
 	@echo " "
 

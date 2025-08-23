@@ -14,6 +14,7 @@
         "facuz/laravel-themes": "^3.2",
         "fideloper/proxy": "^4.0",
         "fruitcake/laravel-cors": "*",
+        "guzzlehttp/guzzle": "6.5.8",
         "irazasyed/telegram-bot-sdk": "*",
         "jenssegers/date": "^4.0",
         "kagatan/monolog-telegram": "^1.4",
@@ -23,6 +24,7 @@
         "maatwebsite/excel": "^3.1",
         "maksa988/laravel-wayforpay": "^1.0",
         "poster/api": "*",
+        "tymon/jwt-auth": "*",
         "typicms/nestablecollection": "^1.1"
     },
     "require-dev": {

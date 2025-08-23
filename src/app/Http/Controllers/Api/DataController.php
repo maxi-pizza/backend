@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Category;
+use App\Models\Delivery;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Http\Controllers\Controller;
+use App\Models\Slider;
 use Illuminate\Support\Facades\DB;
 
-class ProductsController extends Controller
+class DataController extends Controller
 {
 
     public function index()
@@ -55,7 +58,16 @@ class ProductsController extends Controller
             }
 
         }
-        return $result;
+
+        $banners = Slider::where('hidden', false)->get();
+        $shippingMethods = Delivery::where('hidden', false)->get();
+        $paymentMethods = Payment::where('hidden', false)->get();
+        return [
+            'categories' => $result,
+            'banners' => $banners,
+            'shipping_methods' => $shippingMethods,
+            'payment_methods' => $paymentMethods,
+        ];
 
     }
 

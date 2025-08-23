@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,25 +11,52 @@ use Illuminate\Http\Request;
 |
 */
 
+use Illuminate\Support\Facades\Auth;
+
 Route::namespace('Api')->group(function () {
     Route::get('/products', 'ProductsController@index');
+    Route::get('/data', 'DataController@index');
     Route::get('/checkout', 'CheckoutController@index');
     Route::post('/placeOrder', 'PlaceOrderController@index');
 
+    Route::get('/bonuses/options', function() {
+        return [
+            'bonus_enabled' => true,
+            'bonus_rate' => 5,
+            'max_bonus' => 50,
+            'get_bonus_from_used_bonus' => false
+        ];
+    });
 
+    Route::get('/app-version', function() {
+        return [
+            'android' => '0.0.1',
+            'ios'=> '0.0.1',
+            'android_link'=> 'https://youtube.com',
+            'ios_link'=> 'https://youtube.com',
+        ];
+    });
 
-//    Route::get('/products/images', 'ProductsController@images');
-//    Route::get('/products/{posterId}/images', 'ProductsController@getImage');
-//
-//    Route::get('/categories/{spotSlug}', 'CategoriesController@index');
-//    Route::get('/categories/{spotSlug}/{slug}', 'CategoriesController@show');
-//    Route::get('/products/{spotSlug}', 'ProductsController@index');
-//
-//
-//
-//    Route::post('/orders/send', 'OrdersController@send');
-//
-//    Route::get('/spots/get', 'SpotsController@get');
-//    Route::get('/spots/getOne/{slug}', 'SpotsController@getOne');
-    //Route::get('/categories/showPoster}', 'CategoriesController@showPoster');
+    Route::get('/contacts', function() {
+        return [
+            'phones' => ['066 98 98 095', '098 98 98 095'],
+            'instagram_display_text' => '',
+            'instagram_app' =>  '',
+            'instagram_web' => ''
+        ];
+    });
+
+    Route::prefix('auth')->group(function () {
+        Route::middleware('auth:api')->group(function () {
+            Route::get('me', 'AuthController@me');
+            Route::post('logout', 'AuthController@logout');
+        });
+
+        Route::post('login', 'AuthController@login');
+        Route::post('register', 'AuthController@register');
+        Route::post('refresh', 'AuthController@refresh');
+        Route::post('restore-password', 'AuthController@restorePassword');
+
+    });
 });
+

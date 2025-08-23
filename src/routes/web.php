@@ -41,3 +41,7 @@ Route::post('/poster-webhook', 'PosterWebhookController')->name('webhook.poster'
 
 
 
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
