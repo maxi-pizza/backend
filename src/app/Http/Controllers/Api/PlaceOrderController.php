@@ -10,32 +10,25 @@ use Telegram\Bot\Api;
 
 class PlaceOrderController
 {
-
     public function index(){
         $response = file_get_contents('php://input');
         $data = json_decode($response, true);
 
-
         $spot = DB::table('spots')->first('poster_token');
-        $deliveryMethod = DB::table('delivery')->where('id', $data['deliveryMethod'])->first();
-        $paymentMethod = DB::table('payment')->where('id', $data['paymentMethod'])->first();
+        $deliveryMethod = DB::table('delivery')->where('id', $data['delivery_method_id'])->first();
+        $paymentMethod = DB::table('payment')->where('id', $data['payment_method_id'])->first();
 
         PosterApi::init([
             'access_token' => $spot->poster_token,
         ]);
 
-//        DB::table('products')->where('id', $data['cartData']->map(function ($value) {
-//            return $value;
-//        }))->get();
-        $cartIds = collect($data['cartData'])->map(function($item, $key) {
-            return $key;
+        $cartProductIds = collect($data['products'])->map(function($item) {
+            return $item['product_id'];
         });
-        $products = DB::table('products')->whereIn('id', $cartIds)->get();
+        $products = DB::table('products')->whereIn('id', $cartProductIds)->get();
         $posterProducts = collect($products)->map(function($item) use ($data) {
-            $cartProduct = collect($data['cartData'])->first(function($product, $key) use ($item) {
-                if($key == $item->id) {
-                    return $product;
-                }
+            $cartProduct = collect($data['products'])->first(function($product) use ($item) {
+               return $product['product_id'] == $item->id;
             });
 
             return [
@@ -46,24 +39,28 @@ class PlaceOrderController
 
         if($spot) {
             $comment = collect([
-                ['comment', $data['comment']],
-                ['решта', $data['change']],
-                ['способ оплати', $paymentMethod->name],
-                ['sticks', $data['peopleCount']]
+                ['Комментар', $data['comment']],
+                ['Решта', $data['change']],
+                ['Спосіб оплати', $paymentMethod->name],
+                ['Кількість персон', $data['people_count']]
             ])->filter(function ($part) {
                 return !empty($part[1]);
             })->map(function ($part) {
                     return ($part[0] ? $part[0] . ': ' : '') . $part[1];
                 })->join(' || ');
 
+            $name = $data['name'];
+
+            $firstName = explode(' ', $name)[0];
+            $lastName = explode(' ', $name)[1] ?? null;
+
             $order = [
                 'spot_id' => '1',
                 'comment' => $comment,
-                'first_name' => $data['firstName'],
-                'last_name' => $data['lastName'],
+                'first_name' => $firstName,
+                'last_name' => $lastName,
                 'phone' => $data['phone'],
                 'products' => $posterProducts,
-                'service_mode' => ServiceMode::DELIVERY,
             ];
 
             if($deliveryMethod->id == ServiceMode::DELIVERY) {
@@ -77,12 +74,14 @@ class PlaceOrderController
             if(isset($posterResult->error)) {
                 return $posterResult->error;
             }else {
-                $telegram = new Api(env('TELEGRAM_BOT_TEST_TOKEN'));
+                $bot_token = env('TELEGRAM_BOT_ID');
+                $chat_id = env('TELEGRAM_CHAT_ID');
+                $telegram = new Api($bot_token);
 
                 $telegram->sendMessage([
                     'parse_mode' => 'html',
-                    'chat_id' => env('TELEGRAM_BOT_TEST_CHAT_ID'),
-                    'text' => $this->generateReceipt($data['cartData'], $deliveryMethod, $paymentMethod, $data),
+                    'chat_id' => $chat_id,
+                    'text' => $this->generateReceipt($deliveryMethod, $paymentMethod, $data),
                 ]);
                 return 'success';
             }
@@ -92,23 +91,21 @@ class PlaceOrderController
         }
     }
 
-    public function generateReceipt($cart, $shippingMethod, $paymentMethod, $data) {
+    public function generateReceipt($shippingMethod, $paymentMethod, $data) {
 
         $receipt = new Receipt();
-        $cartIds = collect($data['cartData'])->map(function($item, $key) {
-            return $key;
+        $cartIds = collect($data['products'])->map(function($item) {
+            return $item['product_id'];
         });
         $products = DB::table('products')->whereIn('id', $cartIds)->get();
         $receiptProducts = collect($products)->map(function($item) use($data) {
-            $cartProduct = collect($data['cartData'])->first(function($product, $key) use ($item) {
-                if($key == $item->id){
-                    return $product;
-                }
+            $cartProduct = collect($data['products'])->first(function($product) use ($item) {
+               return $product['product_id'] == $item->id;
             });
                 return [
                     'name' => $item->name,
                     'count' => $cartProduct['count'],
-                    'price' => $cartProduct['price'],
+                    'price' => $item->price
                 ];
         });
         $receipt->field("Ім'я", $data['firstName'] ?? null)

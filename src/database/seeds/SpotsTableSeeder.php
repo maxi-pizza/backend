@@ -12,7 +12,6 @@ class SpotsTableSeeder extends Seeder
      */
     public function run()
     {
-
         Spot::create([
             'name'          => config('poster.account_name'),
             'poster_token'  => config('poster.access_token'),

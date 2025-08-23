@@ -22,7 +22,7 @@ Route::namespace('Api')->group(function () {
     Route::get('/bonuses/options', function() {
         return [
             'bonus_enabled' => true,
-            'bonus_rate' => 5,
+            'bonus_rate' => 0.05,
             'max_bonus' => 50,
             'get_bonus_from_used_bonus' => false
         ];
