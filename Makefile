@@ -27,4 +27,9 @@ info:
 	@echo " - Ngrok: \t\t http://localhost:4040"
 	@echo " "
 
+php:
+	docker compose run --rm php bash
+
+php-debug:
+	docker compose run --rm -e XDEBUG_CONFIG="idekey=PHPSTORM" -e PHP_IDE_CONFIG="serverName=salesbox" php bash
 

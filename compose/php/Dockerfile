@@ -19,6 +19,7 @@ WORKDIR /var/www/html
 RUN apk add --no-cache \
     freetype \
     libpng \
+    bash \
     libjpeg-turbo \
     freetype-dev \
     libpng-dev \
@@ -26,10 +27,10 @@ RUN apk add --no-cache \
 
 RUN docker-php-ext-configure gd \
     --with-freetype \
-    --with-jpeg 
+    --with-jpeg
 
 RUN NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
-    docker-php-ext-install -j${NPROC} gd 
+    docker-php-ext-install -j${NPROC} gd
 
 RUN apk del --no-cache freetype-dev libpng-dev libjpeg-turbo-dev
 

@@ -17,11 +17,13 @@ class ProductsTableSeeder extends Seeder
      */
     public function run()
     {
-
         function delEndind($str){
             if(!empty($str)){
                 $sub_str = substr($str, 0, strlen($str)-2);
-                return $sub_str || 0;
+                if($sub_str === false){
+                    return 0;
+                }
+                return $sub_str;
             }
 
             return 0;
@@ -133,14 +135,8 @@ class ProductsTableSeeder extends Seeder
                                 $product_attribute->attributeValues()->sync($attribute_value_id);
                             }
 
-
-
                         }
-
                     }
-
-
-
                 }
             }
         }
