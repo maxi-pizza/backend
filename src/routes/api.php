@@ -21,7 +21,7 @@ Route::namespace('Api')->group(function () {
 
     Route::get('/bonuses/options', function() {
         return [
-            'bonus_enabled' => true,
+            'bonus_enabled' => false,
             'bonus_rate' => 0.05,
             'max_bonus' => 50,
             'get_bonus_from_used_bonus' => false
@@ -40,9 +40,10 @@ Route::namespace('Api')->group(function () {
     Route::get('/contacts', function() {
         return [
             'phones' => ['066 98 98 095', '098 98 98 095'],
-            'instagram_display_text' => '',
-            'instagram_app' =>  '',
-            'instagram_web' => ''
+            'instagram_display_text' => 'maxipizza.art',
+            'instagram_app' =>  'instagram://maxipizza.art',
+            'instagram_web' => 'https://www.instagram.com/maxipizza.art/',
+            'delivery_and_payment_info' => 'Небо, Промрынок 7км, часть п. Авангард и Ленпоселок. Время ожидания до 59 минут. Можно заказать пиццу по 098 98 98 095 и забрать самостоятельно по дороге домой. Ждем вас и ваших заказов.'
         ];
     });
 
