@@ -18,6 +18,7 @@ Route::namespace('Api')->group(function () {
     Route::get('/data', 'DataController@index');
     Route::get('/checkout', 'CheckoutController@index');
     Route::post('/placeOrder', 'PlaceOrderController@index');
+    Route::get('/banners', 'BannersController@index');
 
     Route::get('/bonuses/options', function() {
         return [
