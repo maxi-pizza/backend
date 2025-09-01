@@ -108,8 +108,12 @@ class PlaceOrderController
                     'price' => $item->price
                 ];
         });
-        $receipt->field("Ім'я", $data['firstName'] ?? null)
-            ->field('Прізвище', $data['lastName'] ?? null)
+        $name = $data['name'];
+        $firstName = explode(' ', $name)[0] ?? null;
+        $lastName = explode(' ', $name)[1] ?? null;
+
+        $receipt->field("Ім'я", $firstName)
+            ->field('Прізвище', $lastName)
             ->field('Телефон', $data['phone'])
             ->field('Спосіб доставки', $shippingMethod->name)
             ->field('Адрес', $data['address'])
