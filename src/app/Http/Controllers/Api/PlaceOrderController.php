@@ -14,12 +14,11 @@ class PlaceOrderController
         $response = file_get_contents('php://input');
         $data = json_decode($response, true);
 
-        $spot = DB::table('spots')->first('poster_token');
         $deliveryMethod = DB::table('delivery')->where('id', $data['delivery_method_id'])->first();
         $paymentMethod = DB::table('payment')->where('id', $data['payment_method_id'])->first();
 
         PosterApi::init([
-            'access_token' => $spot->poster_token,
+            'access_token' => env('POSTER_ACCESS_TOKEN')
         ]);
 
         $cartProductIds = collect($data['products'])->map(function($item) {
@@ -37,57 +36,59 @@ class PlaceOrderController
             ];
         });
 
-        if($spot) {
-            $comment = collect([
-                ['Комментар', $data['comment']],
-                ['Решта', $data['change']],
-                ['Спосіб оплати', $paymentMethod->name],
-                ['Кількість персон', $data['people_count']]
-            ])->filter(function ($part) {
-                return !empty($part[1]);
-            })->map(function ($part) {
-                    return ($part[0] ? $part[0] . ': ' : '') . $part[1];
-                })->join(' || ');
+        $comment = collect([
+            ['Комментар', $data['comment']],
+            ['Решта', $data['change']],
+            ['Спосіб оплати', $paymentMethod->name],
+            ['Кількість персон', $data['people_count']]
+        ])->filter(function ($part) {
+            return !empty($part[1]);
+        })->map(function ($part) {
+            return ($part[0] ? $part[0] . ': ' : '') . $part[1];
+        })->join(' || ');
 
-            $name = $data['name'];
+        $name = $data['name'];
 
-            $firstName = explode(' ', $name)[0];
-            $lastName = explode(' ', $name)[1] ?? null;
+        $firstName = explode(' ', $name)[0];
+        $lastName = explode(' ', $name)[1] ?? null;
 
-            $order = [
-                'spot_id' => '1',
-                'comment' => $comment,
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'phone' => $data['phone'],
-                'products' => $posterProducts,
-            ];
+        $order = [
+            'spot_id' => '1',
+            'comment' => $comment,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'phone' => $data['phone'],
+            'products' => $posterProducts,
+            // test products
+//            'products' => [
+//               [
+//                   'product_id' => 5,
+//                   'count' => 1,
+//               ]
+//            ]
+        ];
 
-            if($deliveryMethod->id == ServiceMode::DELIVERY) {
-                $order['service_mode'] = ServiceMode::DELIVERY;
-                $order['address'] = $data['address'] ?? null;
-            }else {
-                $order['service_mode'] = ServiceMode::TAKEAWAY;
-            }
-
-            $posterResult = (object)PosterApi::incomingOrders()->createIncomingOrder($order);
-            if(isset($posterResult->error)) {
-                return $posterResult->error;
-            }else {
-                $bot_token = env('TELEGRAM_BOT_ID');
-                $chat_id = env('TELEGRAM_CHAT_ID');
-                $telegram = new Api($bot_token);
-
-                $telegram->sendMessage([
-                    'parse_mode' => 'html',
-                    'chat_id' => $chat_id,
-                    'text' => $this->generateReceipt($deliveryMethod, $paymentMethod, $data),
-                ]);
-                return 'success';
-            }
-
+        if($deliveryMethod->id == ServiceMode::DELIVERY) {
+            $order['service_mode'] = ServiceMode::DELIVERY;
+            $order['address'] = $data['address'] ?? null;
         }else {
-            return 'error';
+            $order['service_mode'] = ServiceMode::TAKEAWAY;
+        }
+
+        $posterResult = (object)PosterApi::incomingOrders()->createIncomingOrder($order);
+        if(isset($posterResult->error)) {
+            return $posterResult->error;
+        }else {
+            $bot_token = env('TELEGRAM_BOT_ID');
+            $chat_id = env('TELEGRAM_CHAT_ID');
+            $telegram = new Api($bot_token);
+
+            $telegram->sendMessage([
+                'parse_mode' => 'html',
+                'chat_id' => $chat_id,
+                'text' => $this->generateReceipt($deliveryMethod, $paymentMethod, $data),
+            ]);
+            return 'success';
         }
     }
 
@@ -116,7 +117,7 @@ class PlaceOrderController
             ->field('Прізвище', $lastName)
             ->field('Телефон', $data['phone'])
             ->field('Спосіб доставки', $shippingMethod->name)
-            ->field('Адрес', $data['address'])
+            ->field('Адрес', $data['address'] ?? null)
             ->field('Спосіб оплати', $paymentMethod->name)
             ->field('Решта', $data['change'] ?? null)
             ->field('Кількість людей', $data['peopleCount'] ?? null)
