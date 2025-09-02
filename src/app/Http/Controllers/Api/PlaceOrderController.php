@@ -70,6 +70,17 @@ class PlaceOrderController
 //               ]
 //            ]
         ];
+         // todo: create order
+//        $order = Order::create([
+//            'email' => $data['email'],
+//            'first_name' => $data['name'],
+//            'phone' => $data['phone'],
+//            'address' => $data['address'],
+//            'comment' => $comment,
+//            'payment_id' => $data['payment_id'],
+//            'delivery_id' => $data['delivery_id'],
+//            'sum'         => Cart::getTotal()
+//        ]);
 
         if($deliveryMethod->id == ServiceMode::DELIVERY) {
             $order['service_mode'] = ServiceMode::DELIVERY;
