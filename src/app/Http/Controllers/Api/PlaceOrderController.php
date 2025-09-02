@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Classes\Receipt;
 use App\Classes\ServiceMode;
+use App\Models\Order;
+use App\Models\OrderProduct;
 use Illuminate\Support\Facades\DB;
 use poster\src\PosterApi;
 use Telegram\Bot\Api;
@@ -54,7 +56,7 @@ class PlaceOrderController
         $email = $data['email'] ?? null;
         $phone = $data['phone'];
 
-        $order = [
+        $posterOrder = [
             'spot_id' => '1',
             'comment' => $comment,
             'first_name' => $firstName,
@@ -70,40 +72,67 @@ class PlaceOrderController
 //               ]
 //            ]
         ];
-         // todo: create order
-//        $order = Order::create([
-//            'email' => $data['email'],
-//            'first_name' => $data['name'],
-//            'phone' => $data['phone'],
-//            'address' => $data['address'],
-//            'comment' => $comment,
-//            'payment_id' => $data['payment_id'],
-//            'delivery_id' => $data['delivery_id'],
-//            'sum'         => Cart::getTotal()
-//        ]);
+
+        $sum = $products->reduce(function($acc, $item) use ($data) {
+            $cartProduct = collect($data['products'])->first(function($product) use ($item) {
+                return $product['product_id'] == $item->id;
+            });
+            return $acc + $item->price * $cartProduct['count'];
+        }, 0);
+
+        $order = Order::create([
+            'email' => $data['email'],
+            'first_name' => $data['name'],
+            'phone' => $data['phone'],
+            'address' => $data['address'],
+            'comment' => $comment,
+            'payment_id' => $paymentMethod->id,
+            'delivery_id' => $deliveryMethod->id,
+            'sum'         => $sum
+        ]);
+
+        $products->map(function($item) use ($order, $data) {
+            $cartProduct = collect($data['products'])->first(function($product) use ($item) {
+                return $product['product_id'] == $item->id;
+            });
+
+            OrderProduct::create([
+                'order_id'              => $order->id,
+                'product_id'            => $item->id,
+                'quantity'              => $cartProduct['count'],
+                'price'                 => $item->price,
+                'sum'                   => $item->price * $cartProduct['count']
+            ]);
+        });
+
 
         if($deliveryMethod->id == ServiceMode::DELIVERY) {
-            $order['service_mode'] = ServiceMode::DELIVERY;
-            $order['address'] = $data['address'] ?? null;
+            $posterOrder['service_mode'] = ServiceMode::DELIVERY;
+            $posterOrder['address'] = $data['address'] ?? null;
         }else {
-            $order['service_mode'] = ServiceMode::TAKEAWAY;
+            $posterOrder['service_mode'] = ServiceMode::TAKEAWAY;
         }
 
-        $posterResult = (object)PosterApi::incomingOrders()->createIncomingOrder($order);
+        $posterResult = (object)PosterApi::incomingOrders()->createIncomingOrder($posterOrder);
         if(isset($posterResult->error)) {
             throw new \RuntimeException($posterResult->message);
-        } else {
-            $bot_token = env('TELEGRAM_BOT_ID');
-            $chat_id = env('TELEGRAM_CHAT_ID');
-            $telegram = new Api($bot_token);
-
-            $telegram->sendMessage([
-                'parse_mode' => 'html',
-                'chat_id' => $chat_id,
-                'text' => $this->generateReceipt($deliveryMethod, $paymentMethod, $data),
-            ]);
-            return 'success';
         }
+
+        $order->is_sent_to_poster = true;
+        $order->save();
+
+        // todo: create user
+
+        $bot_token = env('TELEGRAM_BOT_ID');
+        $chat_id = env('TELEGRAM_CHAT_ID');
+        $telegram = new Api($bot_token);
+
+        $telegram->sendMessage([
+            'parse_mode' => 'html',
+            'chat_id' => $chat_id,
+            'text' => $this->generateReceipt($deliveryMethod, $paymentMethod, $data),
+        ]);
+        return 'success';
     }
 
     public function generateReceipt($shippingMethod, $paymentMethod, $data) {
