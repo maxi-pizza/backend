@@ -51,13 +51,16 @@ class PlaceOrderController
 
         $firstName = explode(' ', $name)[0];
         $lastName = explode(' ', $name)[1] ?? null;
+        $email = $data['email'] ?? null;
+        $phone = $data['phone'];
 
         $order = [
             'spot_id' => '1',
             'comment' => $comment,
             'first_name' => $firstName,
             'last_name' => $lastName,
-            'phone' => $data['phone'],
+            'phone' => $phone,
+            'email' => $email,
             'products' => $posterProducts,
             // test products
 //            'products' => [
@@ -77,8 +80,8 @@ class PlaceOrderController
 
         $posterResult = (object)PosterApi::incomingOrders()->createIncomingOrder($order);
         if(isset($posterResult->error)) {
-            return $posterResult->error;
-        }else {
+            throw new \RuntimeException($posterResult->message);
+        } else {
             $bot_token = env('TELEGRAM_BOT_ID');
             $chat_id = env('TELEGRAM_CHAT_ID');
             $telegram = new Api($bot_token);
@@ -118,6 +121,7 @@ class PlaceOrderController
             ->field('Телефон', $data['phone'])
             ->field('Спосіб доставки', $shippingMethod->name)
             ->field('Адрес', $data['address'] ?? null)
+            ->field('Email', $data['email'] ?? null)
             ->field('Спосіб оплати', $paymentMethod->name)
             ->field('Решта', $data['change'] ?? null)
             ->field('Кількість людей', $data['peopleCount'] ?? null)
